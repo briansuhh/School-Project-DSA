@@ -1,0 +1,17 @@
+altgraph==0.17.4
+customtkinter==5.2.1
+darkdetect==0.8.0
+importlib-metadata==6.8.0
+numpy==1.24.4
+packaging==23.2
+pandas==2.0.3
+pefile==2023.2.7
+pyinstaller==6.1.0
+pyinstaller-hooks-contrib==2023.10
+pyperclip==1.8.2
+python-dateutil==2.8.2
+pytz==2023.3.post1
+pywin32-ctypes==0.2.2
+six==1.16.0
+tzdata==2023.3
+zipp==3.17.0
