@@ -2,3 +2,9 @@ project_files/
 application.exe
 example.py
 passwords.json
+CustomTkinter/
+homepage.py
+main.py
+Tkinter-Designer
+tkinter-data-entry
+__pycache__
