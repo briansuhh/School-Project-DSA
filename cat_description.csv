@@ -1,0 +1,12 @@
+pet_id,pet_name,breed,age,color,gender,size,description,image_path,availability,adopt_date
+1,Bella,Labrador,2,Yellow,Female,Medium,Friendly and playful dog.,cat_high.jpg,Available,
+2,Max,German Shepherd,3,Black/Tan,Male,Large,Energetic and loves to play fetch.,cat.png,Not available,10/15/2023
+3,Luna,Siamese,1,Cream,Female,Small,,cat_high.jpg,Available,
+4,Rocky,Golden Retriever,2,Golden,Male,Large,Great with kids and other pets.,cat_high.jpg,Available,
+5,Molly,Maine Coon,2,Gray,Female,Large,Affectionate and enjoys cuddling.,cat_high.jpg,Available,
+6,Charlie,Beagle,3,Tri-color,Male,Small,Loves to go for walks and play fetch.,cat_high.jpg,Not available,10/18/2023
+7,Sophie,Bulldog,4,White,Female,Medium,Friendly and good with kids.,cat_high.jpg,Not available,10/24/2023
+8,Simba,Siamese,1,Cream,Male,Small,Likes to explore and play with toys.,cat_high.jpg,Available,
+9,Lola,Poodle,2,Apricot,Female,Small,Hypoallergenic and well-behaved.,cat_high.jpg,Not available,10/17/2023
+10,Oscar,Dachshund,2,Red,Male,Small,Loves to burrow and play fetch.,cat_high.jpg,Available,
+11,Oscar,Dachshund,2,Red,Male,Small,Loves to burrow and play fetch.,cat_high.jpg,Available,
