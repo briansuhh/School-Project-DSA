@@ -1,0 +1,10 @@
+Dear [NAME],
+
+Your adoption request for adopting [CAT_NAME] is currently being processed by our moderation team.
+
+If you have any other concerns, please do not hesitate to email us at python.project.pup@gmail.com.
+
+Thank you.
+
+Sincerely,
+Ayumi

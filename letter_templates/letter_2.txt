@@ -1,0 +1,10 @@
+Dear [NAME],
+
+We wanted to inform you that your adoption request for [CAT_NAME] is currently in progress. Our dedicated team is carefully reviewing your application.
+
+If you have any questions or need assistance, please feel free to contact us at python.project.pup@gmail.com. We're here to help.
+
+Thank you for considering adoption from our organization.
+
+Warm regards,
+Ayumi

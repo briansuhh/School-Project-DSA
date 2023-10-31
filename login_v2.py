@@ -1,47 +1,92 @@
 import customtkinter as ctk
 from customtkinter import *
 import pandas as pd
-from PIL import Image, ImageTk
-from cat_description import pet_id, pet_name, breed, age, color, gender, size, description, image_path, availability, adopt_date, cat_df
+from PIL import Image
+from tkinter import messagebox
+import smtplib
+import random
 
+username = ""
+password = ""
+email = ""
+user_id = ""
 
-# ------------------------------------- Login -------------------------------------
-# Open the CSV file that will act as the database for the credentials
-df = pd.read_csv('credentials.csv')
-
-# Create a list of usernames and passwords from the CSV file
-usernames = df['username'].tolist()
-passwords = df['password'].tolist()
+my_email = "yasgamingofficial@gmail.com"
+email_password = "xvwi jcex gwqq zwtg"
+smtp_server = "smtp.gmail.com"
+smtp_port = 587 
 
 # ------------------------------------- Image Icons -------------------------------------
-logo_icon = ctk.CTkImage(Image.open("logo.png"))
-home_icon = ctk.CTkImage(Image.open("home.png"))
-adopt_icon = ctk.CTkImage(Image.open("adopt.png"))
-donate_icon = ctk.CTkImage(Image.open("donate.png"))
-back_icon = ctk.CTkImage(Image.open("back.png"))
-profile_icon = ctk.CTkImage(Image.open("profile.png"))
-cat_high = ctk.CTkImage(Image.open("cat_high.jpg"), size=(100, 100))
+logo_icon = ctk.CTkImage(Image.open("images/logo.png"))
+home_icon = ctk.CTkImage(Image.open("images/home.png"))
+adopt_icon = ctk.CTkImage(Image.open("images/adopt.png"))
+donate_icon = ctk.CTkImage(Image.open("images/donate.png"))
+back_icon = ctk.CTkImage(Image.open("images/back.png"))
+profile_icon = ctk.CTkImage(Image.open("images/profile.png"))
+cat_high = ctk.CTkImage(Image.open("images/cat_high.jpg"), size=(100, 100))
 
 # ------------------------------------- Functions -------------------------------------
 def check_login():
+    global username, password, user_id
+    # Open the CSV file that will act as the database for the credentials
+    df = pd.read_csv('data/new_credentials.csv')
+
     entered_username = username_entry.get()
     entered_password = password_entry.get()
 
-    # # Check if the username and password entered match the ones in the CSV file
-    # if entered_username in usernames and entered_password in passwords:
-    #     result_label.configure(text="Login Successful")
-    #     # if successful, hide login_page and display homepage
-    #     login_page.pack_forget()
-    #     homepage.pack(fill="both", expand=True, anchor=CENTER)
-    #     # homepage.pack()
-    # else:
-    #     result_label.configure(text="Login Failed")
+    username = entered_username
+    password = entered_password
 
-    login_page.pack_forget()
-    homepage.pack(fill="both", expand=True, anchor=CENTER)
+    # Check if the username and password entered match the ones in the CSV file
+    user_record = df[(df['username'] == entered_username) & (df['password'] == entered_password)]
+
+    if not user_record.empty:
+        # Retrieve the user ID from the filtered DataFrame
+        user_id = user_record['user_id'].values[0]
+
+        result_label.configure(text="Login Successful")
+        # if successful, hide login_page and display homepage
+        login_page.pack_forget()
+        homepage.pack(fill="both", expand=True, anchor=CENTER)
+        profile_button.configure(text=username)
+    else:
+        result_label.configure(text="Login Failed")
+
+    # display home_frame by default
+    select_frame_by_name("home", home_indicate)
+
+def signup_button_event():
+    select_frame_by_name("signup")
+
+def submit_signup():
+    # Get the values from the entry fields
+    full_name = signup_name_entry.get()
+    username = signup_username_entry.get()
+    password = signup_password_entry.get()
+    email = signup_email_entry.get()
+
+    # Check if any of the required fields are empty
+    if not (username and password and full_name and email):
+        signup_result_label.configure(text="Please fill in all required fields.")
+    else:
+        # Create a pandas DataFrame to store the signup data
+        signup_data = pd.DataFrame({
+            "full_name": [full_name],
+            "username": [username],
+            "password": [password],
+            "email": [email]
+        })
+
+        # Append the data to a CSV file
+        signup_data.to_csv("data/new_credentials.csv", mode="a", header=False, index=False)
+
+        signup_result_label.configure(text="Signup successful!")
+        signup_page.pack_forget()
+        login_page.pack(fill="both", expand=True, anchor=CENTER)
 
 # go back to login_page
 def go_back():
+    signup_page.pack_forget()
     homepage.pack_forget()
     login_page.pack(fill="both", expand=True, anchor=CENTER)
 
@@ -49,6 +94,8 @@ def home_button_event():
     select_frame_by_name("home", home_indicate)
 
 def adopt_button_event():
+    for widget in adopt_frame.winfo_children():
+        widget.destroy()
     select_frame_by_name("adopt", adopt_indicate)
 
 def donate_button_event():
@@ -57,22 +104,46 @@ def donate_button_event():
 def profile_button_event():
     select_frame_by_name("profile", profile_indicate)
 
-# def cat_button_event(image_path):
-#     select_frame_by_name("cat_description", cat_indicate)
+def cat_button_event(image_path):    
+    select_frame_by_name("cat_description")
 
-def cat_button_event(image_path):
-    select_frame_by_name("cat_description", cat_indicate)
-    
+    cat_df = pd.read_csv('data/cat_description.csv')
+
     # Find the cat information based on the provided image_path
     cat_info = cat_df[cat_df['image_path'] == image_path].iloc[0]
     
     # Example: Display cat information in the cat_description frame
     cat_description_label.configure(text=f"Cat Name: {cat_info['pet_name']}\nBreed: {cat_info['breed']}\nAge: {cat_info['age']}\nColor: {cat_info['color']}\nGender: {cat_info['gender']}\nSize: {cat_info['size']}\nDescription: {cat_info['description']}\nAvailability: {cat_info['availability']}\nAdopt Date: {cat_info['adopt_date']}")
 
-def select_frame_by_name(name, indicator):
-    # show indicator
-    hide_indicators()
-    indicator.configure(fg_color="black")
+def adopt_send_email():
+    messagebox.showinfo("Pending", "Your adoption request has been sent! Please wait for the email from our team.")
+
+    random_letter = random.randint(1,2)
+
+    # Create the email message
+    with open(f"letter_templates/letter_{random_letter}.txt") as file:
+        letter = file.read()
+        letter = letter.replace("[NAME]", username)
+        letter = letter.replace("[CAT_NAME]", cat_description_label.cget("text").split("\n")[0].split(": ")[1])
+
+    # Get the email of the user logged in
+    df = pd.read_csv('data/new_credentials.csv')
+    user_profile = df[df['user_id'] == user_id].iloc[0]
+    email = user_profile['email']
+
+    print(email)
+    # Send the email
+    with smtplib.SMTP(smtp_server, smtp_port) as connection:
+        connection.starttls()
+        connection.login(user=my_email, password=email_password)
+        connection.sendmail(from_addr=my_email, to_addrs=email, msg=f"Subject:Adoption Request\n\n{letter}")
+        print("Email sent successfully!")
+
+
+def select_frame_by_name(name, indicator = None):
+    if indicator is not None:
+        hide_indicators()
+        indicator.configure(fg_color="black")
 
     # show selected frame
     if name == "home":
@@ -80,6 +151,7 @@ def select_frame_by_name(name, indicator):
     else:
         home_frame.pack_forget()
     if name == "adopt":
+        display_pictures()
         adopt_frame.pack(fill="both", expand=True, anchor=CENTER)
     else:
         adopt_frame.pack_forget()
@@ -89,12 +161,19 @@ def select_frame_by_name(name, indicator):
         donate_frame.pack_forget()
     if name == "profile":
         profile_frame.pack()
+        show_profile()
     else:
         profile_frame.pack_forget()
     if name == "cat_description":
         cat_description.pack()
     else:  
         cat_description.pack_forget()
+    if name == "signup":
+        login_page.pack_forget()
+        signup_page.pack(fill="both", expand=True, anchor=CENTER)
+    else:  
+        signup_page.pack_forget()
+
 
 def hide_indicators():
     home_indicate.configure(fg_color="light grey")
@@ -103,6 +182,7 @@ def hide_indicators():
     profile_indicate.configure(fg_color="light grey")
 
 def display_pictures():
+    cat_df = pd.read_csv('data/cat_description.csv')
     # Calculate the number of columns based on the desired number of columns per row
     num_columns = 3
     current_column = 0
@@ -110,7 +190,7 @@ def display_pictures():
     for index, row in cat_df.iterrows():
         image = ctk.CTkImage(Image.open(row["image_path"]), size=(100, 100))
         image_button = ctk.CTkButton(adopt_frame, text="", image=image, width=100, height=100, fg_color="transparent", hover_color="grey")
-        image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path))  # Example event handler
+        image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path)) # pass the image path to the cat_button_event function
 
         # Use the grid manager to organize buttons in rows and columns
         image_button.grid(row=index // num_columns, column=current_column, padx=10, pady=10)
@@ -120,6 +200,62 @@ def display_pictures():
         if current_column == num_columns:
             current_column = 0
 
+def show_profile():
+    df = pd.read_csv('data/new_credentials.csv')
+
+    user_profile = df[df['user_id'] == user_id].iloc[0]
+
+    if not user_profile.empty:
+        # Extract the profile information
+        fullname = user_profile['full_name']
+        username = user_profile['username']
+        email = user_profile['email']
+        password = user_profile['password']
+
+        # Update the Entry widgets with user details
+        profile_fullname_entry.delete(0, END)
+        profile_fullname_entry.insert(0, fullname)
+        profile_username_entry.delete(0, END)
+        profile_username_entry.insert(0, username)
+        profile_email_entry.delete(0, END)
+        profile_email_entry.insert(0, email)
+        profile_password_entry.delete(0, END)
+        profile_password_entry.insert(0, password)
+
+    
+def update_profile():
+    df = pd.read_csv('data/new_credentials.csv')
+
+    # Get the values from the entry fields
+    fullname = profile_fullname_entry.get()
+    username = profile_username_entry.get()
+    password = profile_password_entry.get()
+    email = profile_email_entry.get()
+
+    print(user_id)
+
+    print(fullname, username, password, email)
+
+    # Check if any of the required fields are empty
+    if not (username and password and fullname and email):
+        messagebox.showerror("Error", "Please fill in all required fields.")
+    else:
+        # Update the user profile based on the unique user ID
+        df.loc[df['user_id'] == user_id, 'full_name'] = fullname
+        df.loc[df['user_id'] == user_id, 'username'] = username
+        df.loc[df['user_id'] == user_id, 'password'] = password
+        df.loc[df['user_id'] == user_id, 'email'] = email
+
+        # Save the updated profile to the CSV file
+        df.to_csv("data/new_credentials.csv", index=False)
+
+        messagebox.showinfo("Success", "Profile updated successfully!")
+
+        profile_button.configure(text=username)
+
+
+
+        
 # ------------------------------------- Main -------------------------------------
 # ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -127,7 +263,6 @@ ctk.set_default_color_theme("dark-blue")
 # Create the main window
 root = ctk.CTk()
 root.title("Login")
-# root.geometry("300x300")
 root.geometry("530x400") # changed the size of the geometry for the homepage
 
 # ------------------------------------- Login Page -------------------------------------
@@ -150,8 +285,49 @@ password_entry.place(relx=0.5, rely=0.55, anchor="center")
 login_button = ctk.CTkButton(login_page, text="Login", command=check_login)
 login_button.place(relx=0.5, rely=0.70, anchor="center")
 
+signup_button = ctk.CTkButton(login_page, text="Signup", command=signup_button_event)
+signup_button.place(relx=0.5, rely=0.95, anchor="center")
+
 result_label = ctk.CTkLabel(login_page, text="")
 result_label.place(relx=0.5, rely=0.80, anchor="center")
+
+
+# ------------------------------------- Signup Page -------------------------------------
+signup_page = ctk.CTkFrame(root)
+
+# Create and place widgets using the place method with anchor "center"
+signup_name_label = ctk.CTkLabel(signup_page, text="Full Name:")
+signup_name_label.pack()
+
+signup_name_entry = ctk.CTkEntry(signup_page)
+signup_name_entry.pack()
+
+signup_username_label = ctk.CTkLabel(signup_page, text="Username:")
+signup_username_label.pack()
+
+signup_username_entry = ctk.CTkEntry(signup_page)
+signup_username_entry.pack()
+
+signup_password_label = ctk.CTkLabel(signup_page, text="Password:")
+signup_password_label.pack()
+
+signup_password_entry = ctk.CTkEntry(signup_page, show="*")
+signup_password_entry.pack()
+
+signup_email_label = ctk.CTkLabel(signup_page, text="Email:")
+signup_email_label.pack()
+
+signup_email_entry = ctk.CTkEntry(signup_page)
+signup_email_entry.pack()
+
+signup_submit_button = ctk.CTkButton(signup_page, text="Submit", command=submit_signup)
+signup_submit_button.pack()
+
+signup_result_label = ctk.CTkLabel(signup_page, text="")
+signup_result_label.pack()
+
+signup_login_button = ctk.CTkButton(signup_page, text="Go back to login", command=go_back)
+signup_login_button.pack()
 
 # ------------------------------------- Homepage -------------------------------------
 homepage = ctk.CTkFrame(root)
@@ -162,7 +338,8 @@ nav_bar = ctk.CTkFrame(homepage, fg_color="light grey")
 logo_label = ctk.CTkLabel(nav_bar, text=" Pusaa", image=logo_icon, compound="left")
 logo_label.pack(padx=10, pady=10)
 
-# Place the widgets inside the navigation bar
+
+# ------------------------------------- Navigation Bar -------------------------------------
 home_button = ctk.CTkButton(nav_bar, text="Home", image=home_icon, command=home_button_event)
 home_button.pack(padx=10, pady=10)
 
@@ -181,7 +358,6 @@ donate_button.pack(padx=10, pady=10)
 donate_indicate = ctk.CTkLabel(nav_bar, text="", height=40, width=2, fg_color="light grey")
 donate_indicate.place(x=3, y=148)
 
-
 logout_button = ctk.CTkButton(nav_bar, text="Logout", image=back_icon, command=go_back)
 logout_button.pack(padx=10, pady=10, side = ctk.BOTTOM)
 
@@ -191,56 +367,75 @@ profile_button.pack(padx=10, side = ctk.BOTTOM)
 profile_indicate = ctk.CTkLabel(nav_bar, text="", height=40, width=2, fg_color="light grey")
 profile_indicate.place(x=3, y=318)
 
-
 nav_bar.pack(side = ctk.LEFT)
 nav_bar.pack_propagate(False)
 nav_bar.configure(width=100, height=400)
 
+# ------------------------------------- Main Frame -------------------------------------
 main_frame = ctk.CTkFrame(homepage)
 
-# This is the homepage frame
 home_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
 lb = ctk.CTkLabel(home_frame, text="Welcome to Pusaa", font=("Arial", 20))
 lb.pack(padx=10, pady=10)
 
-# This is the adopt page
+# ------------------------------------- Adopt -------------------------------------
 adopt_frame = ctk.CTkScrollableFrame(main_frame, corner_radius=0, fg_color="transparent")
-
 lb = ctk.CTkLabel(adopt_frame, text="Adopt a pet", font=("Arial", 20))
 lb.grid(row=0, column=0, columnspan=3, padx=10, pady=10)    
 
-display_pictures()
-
-# ------------------------------------- Image description -------------------------------------
 cat_description = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
 lb = ctk.CTkLabel(cat_description, text="Cat Description", font=("Arial", 20))
 lb.pack(padx=10, pady=10)
 
-cat_indicate = ctk.CTkLabel(cat_description, text="", height=40, width=2, fg_color="light grey")
-cat_indicate.place(x=3, y=318)
-
 cat_description_label = ctk.CTkLabel(cat_description, text="", font=("Arial", 10))
 cat_description_label.pack(padx=10, pady=10)
 
+cat_description_adopt_button = ctk.CTkButton(cat_description, text="Adopt", image=adopt_icon, command=adopt_send_email)
+cat_description_adopt_button.pack(padx=10, pady=10)
 
-# This is the donate page
+cat_description_back_button = ctk.CTkButton(cat_description, text="Go back", image=back_icon, command=adopt_button_event)
+cat_description_back_button.pack(padx=10, pady=10)
+
+
+# ------------------------------------- Donate -------------------------------------
 donate_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
 lb = ctk.CTkLabel(donate_frame, text="Donate to Pusaa", font=("Arial", 20))
 lb.pack(padx=10, pady=10)
 
-# This is the profile page
+
+# ------------------------------------- Profile -------------------------------------
 profile_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
 lb = ctk.CTkLabel(profile_frame, text="Profile", font=("Arial", 20))
 lb.pack(padx=10, pady=10)
 
+# Add Entry widgets to display user details
+profile_fullname_label = ctk.CTkLabel(profile_frame, text="Full Name:")
+profile_fullname_label.pack()
+profile_fullname_entry = ctk.CTkEntry(profile_frame)
+profile_fullname_entry.pack()
+
+profile_username_label = ctk.CTkLabel(profile_frame, text="Username:")
+profile_username_label.pack()
+profile_username_entry = ctk.CTkEntry(profile_frame)
+profile_username_entry.pack()
+
+profile_email_label = ctk.CTkLabel(profile_frame, text="Email:")
+profile_email_label.pack()
+profile_email_entry = ctk.CTkEntry(profile_frame)
+profile_email_entry.pack()
+
+profile_email_label = ctk.CTkLabel(profile_frame, text="Password:")
+profile_email_label.pack()
+profile_password_entry = ctk.CTkEntry(profile_frame)
+profile_password_entry.pack()
+
+profile_update_button = ctk.CTkButton(profile_frame, text="Update", command=update_profile)
+profile_update_button.pack()
+
+
 main_frame.pack(side = ctk.LEFT)    
 main_frame.pack_propagate(False)
 main_frame.configure(width=6000, height=400)
-
-# display home_frame by default
-select_frame_by_name("home", home_indicate)
-
-
 
 
 # Start the main loop
