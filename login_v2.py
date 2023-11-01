@@ -262,9 +262,6 @@ def update_profile():
         profile_button.configure(text=username)
 
 def add_pet():
-    # read the csv file
-    df = pd.read_csv('data/cat_description.csv')
-
     # Get the values from the entry fields
     pet_name = register_name_entry.get()
     breed = register_breed_entry.get()
