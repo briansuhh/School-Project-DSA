@@ -98,6 +98,9 @@ def adopt_button_event():
         widget.destroy()
     select_frame_by_name("adopt", adopt_indicate)
 
+def register_button_event():
+    select_frame_by_name("register", register_indicate)
+
 def donate_button_event():
     select_frame_by_name("donate", donate_indicate)
 
@@ -152,9 +155,13 @@ def select_frame_by_name(name, indicator = None):
         home_frame.pack_forget()
     if name == "adopt":
         display_pictures()
-        adopt_frame.pack(fill="both", expand=True, anchor=CENTER)
+        adopt_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
     else:
         adopt_frame.pack_forget()
+    if name == "register":
+        register_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
+    else:
+        register_frame.pack_forget()
     if name == "donate":
         donate_frame.pack()
     else:
@@ -170,7 +177,7 @@ def select_frame_by_name(name, indicator = None):
         cat_description.pack_forget()
     if name == "signup":
         login_page.pack_forget()
-        signup_page.pack(fill="both", expand=True, anchor=CENTER)
+        signup_page.pack()
     else:  
         signup_page.pack_forget()
 
@@ -178,6 +185,7 @@ def select_frame_by_name(name, indicator = None):
 def hide_indicators():
     home_indicate.configure(fg_color="light grey")
     adopt_indicate.configure(fg_color="light grey")
+    register_indicate.configure(fg_color="light grey")
     donate_indicate.configure(fg_color="light grey")
     profile_indicate.configure(fg_color="light grey")
 
@@ -253,9 +261,38 @@ def update_profile():
 
         profile_button.configure(text=username)
 
+def add_pet():
+    # read the csv file
+    df = pd.read_csv('data/cat_description.csv')
 
+    # Get the values from the entry fields
+    pet_name = register_name_entry.get()
+    breed = register_breed_entry.get()
+    age = register_age_entry.get()
+    color = register_color_entry.get()
+    gender = register_gender_entry.get()
+    size = register_size_entry.get()
+    description = register_desc_text.get("1.0", END).replace("\n", " ")
 
+    # Check if any of the required fields are empty
+    if not(pet_name and breed and age and color and gender and size and description):
+        messagebox.showerror("Error", "Please fill in all required fields.")
+    else:
+        pet_data = pd.DataFrame({
+            "pet_name": [pet_name],
+            "breed": [breed],
+            "age": [age],
+            "color": [color],
+            "size": [size],
+            "description": [description]
+        })
+
+        # Append the data to a CSV file
+        pet_data.to_csv("data/cat_description.csv", mode="a", header=False, index=False)
         
+        messagebox.showinfo("Success", "Pet added successfully!")
+
+
 # ------------------------------------- Main -------------------------------------
 # ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -263,7 +300,7 @@ ctk.set_default_color_theme("dark-blue")
 # Create the main window
 root = ctk.CTk()
 root.title("Login")
-root.geometry("530x400") # changed the size of the geometry for the homepage
+root.geometry("620x400") # changed the size of the geometry for the homepage
 
 # ------------------------------------- Login Page -------------------------------------
 login_page = ctk.CTkFrame(root)
@@ -333,7 +370,7 @@ signup_login_button.pack()
 homepage = ctk.CTkFrame(root)
 
 # Create the navigation bar inside the homepage
-nav_bar = ctk.CTkFrame(homepage, fg_color="light grey")
+nav_bar = ctk.CTkFrame(homepage, fg_color="light grey", width=130, height=400)
 
 logo_label = ctk.CTkLabel(nav_bar, text=" Pusaa", image=logo_icon, compound="left")
 logo_label.pack(padx=10, pady=10)
@@ -352,11 +389,17 @@ adopt_button.pack(padx=10, pady=10)
 adopt_indicate = ctk.CTkLabel(nav_bar, text="", height=40, width=2, fg_color="light grey")
 adopt_indicate.place(x=3, y=100)
 
+register_button = ctk.CTkButton(nav_bar, text="Register", image=adopt_icon, command=register_button_event)
+register_button.pack(padx=10, pady=10)
+
+register_indicate = ctk.CTkLabel(nav_bar, text="", height=40, width=2, fg_color="light grey")
+register_indicate.place(x=3, y=148)
+
 donate_button = ctk.CTkButton(nav_bar, text="Donate", image=donate_icon, command=donate_button_event)
 donate_button.pack(padx=10, pady=10)
 
 donate_indicate = ctk.CTkLabel(nav_bar, text="", height=40, width=2, fg_color="light grey")
-donate_indicate.place(x=3, y=148)
+donate_indicate.place(x=3, y=196)
 
 logout_button = ctk.CTkButton(nav_bar, text="Logout", image=back_icon, command=go_back)
 logout_button.pack(padx=10, pady=10, side = ctk.BOTTOM)
@@ -369,22 +412,21 @@ profile_indicate.place(x=3, y=318)
 
 nav_bar.pack(side = ctk.LEFT)
 nav_bar.pack_propagate(False)
-nav_bar.configure(width=100, height=400)
 
 # ------------------------------------- Main Frame -------------------------------------
 main_frame = ctk.CTkFrame(homepage)
 
 home_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
-lb = ctk.CTkLabel(home_frame, text="Welcome to Pusaa", font=("Arial", 20))
+lb = ctk.CTkLabel(home_frame, text="Welcome to Pusaa", font=("Arial", 18))
 lb.pack(padx=10, pady=10)
 
 # ------------------------------------- Adopt -------------------------------------
 adopt_frame = ctk.CTkScrollableFrame(main_frame, corner_radius=0, fg_color="transparent")
-lb = ctk.CTkLabel(adopt_frame, text="Adopt a pet", font=("Arial", 20))
+lb = ctk.CTkLabel(adopt_frame, text="Adopt a pet", font=("Arial", 18))
 lb.grid(row=0, column=0, columnspan=3, padx=10, pady=10)    
 
 cat_description = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
-lb = ctk.CTkLabel(cat_description, text="Cat Description", font=("Arial", 20))
+lb = ctk.CTkLabel(cat_description, text="Cat Description", font=("Arial", 18))
 lb.pack(padx=10, pady=10)
 
 cat_description_label = ctk.CTkLabel(cat_description, text="", font=("Arial", 10))
@@ -397,15 +439,62 @@ cat_description_back_button = ctk.CTkButton(cat_description, text="Go back", ima
 cat_description_back_button.pack(padx=10, pady=10)
 
 
-# ------------------------------------- Donate -------------------------------------
+# ------------------------------------- Register -------------------------------------
+register_frame = ctk.CTkScrollableFrame(main_frame, corner_radius=0, fg_color="transparent")
+
+lb = ctk.CTkLabel(register_frame, text="Register for adoption", font=("Arial", 18))
+lb.grid(row=0, column=1, sticky="n")
+
+# make 3 columns per row
+
+register_name_label = ctk.CTkLabel(register_frame, text="Pet Name:")
+register_name_label.grid(row=1, column=0)
+register_name_entry = ctk.CTkEntry(register_frame)
+register_name_entry.grid(row=2, column=0)
+
+register_breed_label = ctk.CTkLabel(register_frame, text="Breed:")
+register_breed_label.grid(row=1, column=1)
+register_breed_entry = ctk.CTkEntry(register_frame)
+register_breed_entry.grid(row=2, column=1)
+
+register_age_label = ctk.CTkLabel(register_frame, text="Age:")
+register_age_label.grid(row=1, column=2)
+register_age_entry = ctk.CTkEntry(register_frame)
+register_age_entry.grid(row=2, column=2)
+
+register_color_label = ctk.CTkLabel(register_frame, text="Color:")
+register_color_label.grid(row=3, column=0)
+register_color_entry = ctk.CTkEntry(register_frame)
+register_color_entry.grid(row=4, column=0)
+
+register_gender_label = ctk.CTkLabel(register_frame, text="Gender:")
+register_gender_label.grid(row=3, column=1)
+register_gender_entry = ctk.CTkEntry(register_frame)
+register_gender_entry.grid(row=4, column=1)
+
+register_size_label = ctk.CTkLabel(register_frame, text="Size:")
+register_size_label.grid(row=3, column=2)
+register_size_entry = ctk.CTkEntry(register_frame)
+register_size_entry.grid(row=4, column=2)
+
+register_desc_label = ctk.CTkLabel(register_frame, text="Description:")
+register_desc_label.grid(row=5, column=1)
+register_desc_text = ctk.CTkTextbox(register_frame, height=100)
+register_desc_text.grid(row=6, column=0, columnspan=3, sticky="ew")
+
+register_submit_button = ctk.CTkButton(register_frame, text="Submit", command=add_pet)
+register_submit_button.grid(row=7, column=1, padx=10, pady=10)
+
+# ------------------------------------- About -------------------------------------
 donate_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
-lb = ctk.CTkLabel(donate_frame, text="Donate to Pusaa", font=("Arial", 20))
+lb = ctk.CTkLabel(donate_frame, text="Donate to Pusaa", font=("Arial", 18))
 lb.pack(padx=10, pady=10)
+
 
 
 # ------------------------------------- Profile -------------------------------------
 profile_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent")
-lb = ctk.CTkLabel(profile_frame, text="Profile", font=("Arial", 20))
+lb = ctk.CTkLabel(profile_frame, text="Profile", font=("Arial", 18))
 lb.pack(padx=10, pady=10)
 
 # Add Entry widgets to display user details
