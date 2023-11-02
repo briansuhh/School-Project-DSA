@@ -16,6 +16,9 @@ email_password = "xvwi jcex gwqq zwtg"
 smtp_server = "smtp.gmail.com"
 smtp_port = 587 
 
+cat_df = None
+num_columns = None
+
 # ------------------------------------- Image Icons -------------------------------------
 logo_icon = ctk.CTkImage(Image.open("images/logo.png"))
 home_icon = ctk.CTkImage(Image.open("images/home.png"))
@@ -23,7 +26,7 @@ adopt_icon = ctk.CTkImage(Image.open("images/adopt.png"))
 donate_icon = ctk.CTkImage(Image.open("images/donate.png"))
 back_icon = ctk.CTkImage(Image.open("images/back.png"))
 profile_icon = ctk.CTkImage(Image.open("images/profile.png"))
-cat_high = ctk.CTkImage(Image.open("images/cat_high.jpg"), size=(100, 100))
+# cat_high = ctk.CTkImage(Image.open("images/cat_1.png"), size=(100, 100))
 
 # ------------------------------------- Functions -------------------------------------
 def check_login():
@@ -154,9 +157,11 @@ def select_frame_by_name(name, indicator = None):
     else:
         home_frame.pack_forget()
     if name == "adopt":
-        display_pictures()
+        display_initial_pictures()
+        adopt_title_frame.pack(side=TOP, fill=X)
         adopt_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
     else:
+        adopt_title_frame.pack_forget()
         adopt_frame.pack_forget()
     if name == "register":
         register_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
@@ -189,24 +194,60 @@ def hide_indicators():
     donate_indicate.configure(fg_color="light grey")
     profile_indicate.configure(fg_color="light grey")
 
-def display_pictures():
+def display_initial_pictures():
+    global cat_df, num_columns
     cat_df = pd.read_csv('data/cat_description.csv')
-    # Calculate the number of columns based on the desired number of columns per row
     num_columns = 3
-    current_column = 0
 
-    for index, row in cat_df.iterrows():
+    update_images(cat_df, num_columns)
+
+# def update_images(df, num_columns):
+#     for widget in adopt_frame.winfo_children():
+#         widget.grid_forget()
+
+#     current_column = 0
+#     for index, row in df.iterrows():
+#         image = ctk.CTkImage(Image.open(row["image_path"]), size=(100, 100))
+#         image_button = ctk.CTkButton(adopt_frame, text="", image=image, width=100, height=100, fg_color="transparent", hover_color="grey")
+#         image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path))
+#         image_button.grid(row=index // num_columns, column=current_column, padx=10, pady=10)
+#         current_column += 1
+#         if current_column == num_columns:
+#             current_column = 0
+
+def update_images(df, num_columns):
+    for widget in adopt_frame.winfo_children():
+        widget.grid_forget()
+
+    current_row = 0
+    current_column = 0
+    for index, row in df.iterrows():
+        # Create a label to display the name of the cat
+        
+        name_label = ctk.CTkLabel(adopt_frame, text=row["pet_name"], font=("Helvetica", 14))
+        name_label.grid(row=current_row, column=current_column, padx=10, pady=5)
+
+        # Create the image button for the cat's picture
         image = ctk.CTkImage(Image.open(row["image_path"]), size=(100, 100))
         image_button = ctk.CTkButton(adopt_frame, text="", image=image, width=100, height=100, fg_color="transparent", hover_color="grey")
-        image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path)) # pass the image path to the cat_button_event function
+        image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path))
+        image_button.grid(row=current_row + 1, column=current_column, padx=10)  # Place the image below the name label
 
-        # Use the grid manager to organize buttons in rows and columns
-        image_button.grid(row=index // num_columns, column=current_column, padx=10, pady=10)
-
-        # Update the current column, and if it reaches the specified number of columns, reset it and move to the next row
         current_column += 1
         if current_column == num_columns:
             current_column = 0
+            current_row += 2  # Increment the current row to position the next row of labels and buttons
+
+        
+def perform_search(cat_df, num_columns):
+    search_query = search_entry.get().strip().lower()
+    if search_query:
+        filtered_df = cat_df[cat_df['pet_name'].str.lower().str.contains(search_query, case=False)]
+        update_images(filtered_df, num_columns)
+    else:
+        update_images(cat_df, num_columns)
+            
+    
 
 def show_profile():
     df = pd.read_csv('data/new_credentials.csv')
@@ -418,6 +459,14 @@ lb = ctk.CTkLabel(home_frame, text="Welcome to Pusaa", font=("Arial", 18))
 lb.pack(padx=10, pady=10)
 
 # ------------------------------------- Adopt -------------------------------------
+adopt_title_frame = ctk.CTkFrame(main_frame, corner_radius=0, fg_color="transparent", width=10)
+
+# Create the search Entry widget
+search_entry = ctk.CTkEntry(adopt_title_frame, placeholder_text="Search cat by name")
+search_entry.pack()
+search_button = ctk.CTkButton(adopt_title_frame, text="Search", command=lambda: perform_search(cat_df, num_columns))
+search_button.pack()
+
 adopt_frame = ctk.CTkScrollableFrame(main_frame, corner_radius=0, fg_color="transparent")
 lb = ctk.CTkLabel(adopt_frame, text="Adopt a pet", font=("Arial", 18))
 lb.grid(row=0, column=0, columnspan=3, padx=10, pady=10)    
