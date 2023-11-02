@@ -1,10 +1,12 @@
 import customtkinter as ctk
 from customtkinter import *
+from customtkinter import filedialog
 import pandas as pd
 from PIL import Image
 from tkinter import messagebox
 import smtplib
 import random
+import shutil
 
 username = ""
 password = ""
@@ -68,12 +70,17 @@ def submit_signup():
     password = signup_password_entry.get()
     email = signup_email_entry.get()
 
+    # Get the last user ID from the CSV file
+    df = pd.read_csv('data/new_credentials.csv')
+    last_user_id = df['user_id'].max()
+
     # Check if any of the required fields are empty
     if not (username and password and full_name and email):
         signup_result_label.configure(text="Please fill in all required fields.")
     else:
         # Create a pandas DataFrame to store the signup data
         signup_data = pd.DataFrame({
+            "user_id":[last_user_id + 1],  # Increment the user ID by 1
             "full_name": [full_name],
             "username": [username],
             "password": [password],
@@ -118,7 +125,6 @@ def cat_button_event(image_path):
     # Find the cat information based on the provided image_path
     cat_info = cat_df[cat_df['image_path'] == image_path].iloc[0]
     
-    # Example: Display cat information in the cat_description frame
     cat_description_label.configure(text=f"Cat Name: {cat_info['pet_name']}\nBreed: {cat_info['breed']}\nAge: {cat_info['age']}\nColor: {cat_info['color']}\nGender: {cat_info['gender']}\nSize: {cat_info['size']}\nDescription: {cat_info['description']}\nAvailability: {cat_info['availability']}\nAdopt Date: {cat_info['adopt_date']}")
 
 def adopt_send_email():
@@ -182,7 +188,7 @@ def select_frame_by_name(name, indicator = None):
         cat_description.pack_forget()
     if name == "signup":
         login_page.pack_forget()
-        signup_page.pack()
+        signup_page.pack(fill="both", expand=True, anchor=CENTER)
     else:  
         signup_page.pack_forget()
 
@@ -312,11 +318,16 @@ def add_pet():
     size = register_size_entry.get()
     description = register_desc_text.get("1.0", END).replace("\n", " ")
 
-    # Check if any of the required fields are empty
-    if not(pet_name and breed and age and color and gender and size and description):
+    # Get the last pet ID from the CSV file
+    df = pd.read_csv('data/cat_description.csv')
+    last_pet_id = df['pet_id'].max()
+
+    # Check if any of the required fields are empty and if the user has uploaded an image
+    if not(pet_name and breed and age and color and gender and size and description and os.path.exists("uploads")):
         messagebox.showerror("Error", "Please fill in all required fields.")
     else:
         pet_data = pd.DataFrame({
+            "pet_id": [last_pet_id + 1],  # Increment the pet ID by 1
             "pet_name": [pet_name],
             "breed": [breed],
             "age": [age],
@@ -329,6 +340,39 @@ def add_pet():
         pet_data.to_csv("data/cat_description.csv", mode="a", header=False, index=False)
         
         messagebox.showinfo("Success", "Pet added successfully!")
+
+def upload_image():
+    # Open a file dialog to select an image
+    image_path = filedialog.askopenfilename(title="Select an image", filetypes=[("Image Files", "*.png *.jpg *.jpeg")])
+
+    # Check if an image was selected
+    if image_path:
+        # Create a new folder called "images" if it doesn't exist
+        if not os.path.exists("pics"):
+            os.mkdir("pics")
+
+        # Get the filename of the selected image
+        filename = os.path.basename(image_path)
+
+        # Create a new path to store the image in the "images" folder
+        new_image_path = os.path.join("pics", filename)
+
+        # Copy the image to the "images" folder
+        shutil.copy(image_path, new_image_path)
+
+        # get the index of the last row in the CSV file
+        df = pd.read_csv('data/cat_description.csv')
+        last_index = df.index.max()
+
+        # Update the image_path column of the last row with the new image path
+        df.loc[last_index, 'image_path'] = new_image_path
+
+        # Save the updated DataFrame to the CSV file
+        df.to_csv("data/cat_description.csv", index=False)
+
+        messagebox.showinfo("Success", "Image uploaded successfully!")
+
+
 
 
 # ------------------------------------- Main -------------------------------------
@@ -527,6 +571,9 @@ register_desc_label = ctk.CTkLabel(register_frame, text="Description:")
 register_desc_label.grid(row=5, column=1)
 register_desc_text = ctk.CTkTextbox(register_frame, height=100)
 register_desc_text.grid(row=6, column=0, columnspan=3, sticky="ew")
+
+register_image_button = ctk.CTkButton(register_frame, text="Upload Image", command=upload_image)
+register_image_button.grid(row=7, column=0, padx=10, pady=10)
 
 register_submit_button = ctk.CTkButton(register_frame, text="Submit", command=add_pet)
 register_submit_button.grid(row=7, column=1, padx=10, pady=10)
