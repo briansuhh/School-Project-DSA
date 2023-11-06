@@ -9,5 +9,4 @@ pet_id,pet_name,breed,age,color,gender,size,description,image_path,availability,
 8,Simba,Siamese,1,Cream,Male,Small,Likes to explore and play with toys.,images/cat_8.jpg,Pending,
 9,Ayu,Beagle,3,Tri-color,Male,Small,Loves to go for walks and play fetch.,images/cat_9.png,Pending,10/18/2023
 10,Sophie,Bulldog,4,White,Female,Medium,Friendly and good with kids.,images/cat_10.jpg,Pending,10/24/2023
-11,asf,dfs,fsdf,sdfas,asdf,safsdf ,,pics/cat_1.png,,
-12,asfa,sdfas,fasfdas,asdfsdf,dfsdfasf,asdfsdfsf ,,pics\cat_5.jpg,,
+11,asa,sfas,asfsd,fasdf,sadf,asdf,asdf ,uploads\cat_1.png

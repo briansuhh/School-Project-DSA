@@ -1,25 +1,24 @@
 import customtkinter as ctk
-from customtkinter import *
-from customtkinter import filedialog
 import pandas as pd
 from PIL import Image
 from tkinter import messagebox
 import smtplib
 import random
 import shutil
+import os
 
-username = ""
-password = ""
-email = ""
-user_id = ""
+# username = ""
+# password = ""
+# email = ""
+# user_id = ""
 
 my_email = "yasgamingofficial@gmail.com"
 email_password = "xvwi jcex gwqq zwtg"
 smtp_server = "smtp.gmail.com"
 smtp_port = 587 
 
-cat_df = None
-num_columns = None
+# cat_df = None
+# num_columns = None
 
 # ------------------------------------- Image Icons -------------------------------------
 logo_icon = ctk.CTkImage(Image.open("images/logo.png"))
@@ -28,7 +27,6 @@ adopt_icon = ctk.CTkImage(Image.open("images/adopt.png"))
 donate_icon = ctk.CTkImage(Image.open("images/donate.png"))
 back_icon = ctk.CTkImage(Image.open("images/back.png"))
 profile_icon = ctk.CTkImage(Image.open("images/profile.png"))
-# cat_high = ctk.CTkImage(Image.open("images/cat_1.png"), size=(100, 100))
 
 # ------------------------------------- Functions -------------------------------------
 def check_login():
@@ -52,7 +50,7 @@ def check_login():
         result_label.configure(text="Login Successful")
         # if successful, hide login_page and display homepage
         login_page.pack_forget()
-        homepage.pack(fill="both", expand=True, anchor=CENTER)
+        homepage.pack(fill="both", expand=True, anchor=ctk.CENTER)
         profile_button.configure(text=username)
     else:
         result_label.configure(text="Login Failed")
@@ -92,13 +90,13 @@ def submit_signup():
 
         signup_result_label.configure(text="Signup successful!")
         signup_page.pack_forget()
-        login_page.pack(fill="both", expand=True, anchor=CENTER)
+        login_page.pack(fill="both", expand=True, anchor=ctk.CENTER)
 
 # go back to login_page
 def go_back():
     signup_page.pack_forget()
     homepage.pack_forget()
-    login_page.pack(fill="both", expand=True, anchor=CENTER)
+    login_page.pack(fill="both", expand=True, anchor=ctk.CENTER)
 
 def home_button_event():
     select_frame_by_name("home", home_indicate)
@@ -164,13 +162,13 @@ def select_frame_by_name(name, indicator = None):
         home_frame.pack_forget()
     if name == "adopt":
         display_initial_pictures()
-        adopt_title_frame.pack(side=TOP, fill=X)
-        adopt_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
+        adopt_title_frame.pack(side=ctk.TOP, fill=ctk.X)
+        adopt_frame.pack(fill="both", expand=True, anchor=ctk.CENTER, side=ctk.LEFT, padx=10, pady=10)
     else:
         adopt_title_frame.pack_forget()
         adopt_frame.pack_forget()
     if name == "register":
-        register_frame.pack(fill="both", expand=True, anchor=CENTER, side=LEFT, padx=10, pady=10)
+        register_frame.pack(fill="both", expand=True, anchor=ctk.CENTER, side=ctk.LEFT, padx=10, pady=10)
     else:
         register_frame.pack_forget()
     if name == "donate":
@@ -188,7 +186,7 @@ def select_frame_by_name(name, indicator = None):
         cat_description.pack_forget()
     if name == "signup":
         login_page.pack_forget()
-        signup_page.pack(fill="both", expand=True, anchor=CENTER)
+        signup_page.pack(fill="both", expand=True, anchor=ctk.CENTER)
     else:  
         signup_page.pack_forget()
 
@@ -206,20 +204,6 @@ def display_initial_pictures():
     num_columns = 3
 
     update_images(cat_df, num_columns)
-
-# def update_images(df, num_columns):
-#     for widget in adopt_frame.winfo_children():
-#         widget.grid_forget()
-
-#     current_column = 0
-#     for index, row in df.iterrows():
-#         image = ctk.CTkImage(Image.open(row["image_path"]), size=(100, 100))
-#         image_button = ctk.CTkButton(adopt_frame, text="", image=image, width=100, height=100, fg_color="transparent", hover_color="grey")
-#         image_button.configure(command=lambda img_path=row["image_path"]: cat_button_event(img_path))
-#         image_button.grid(row=index // num_columns, column=current_column, padx=10, pady=10)
-#         current_column += 1
-#         if current_column == num_columns:
-#             current_column = 0
 
 def update_images(df, num_columns):
     for widget in adopt_frame.winfo_children():
@@ -268,13 +252,13 @@ def show_profile():
         password = user_profile['password']
 
         # Update the Entry widgets with user details
-        profile_fullname_entry.delete(0, END)
+        profile_fullname_entry.delete(0, ctk.END)
         profile_fullname_entry.insert(0, fullname)
-        profile_username_entry.delete(0, END)
+        profile_username_entry.delete(0, ctk.END)
         profile_username_entry.insert(0, username)
-        profile_email_entry.delete(0, END)
+        profile_email_entry.delete(0, ctk.END)
         profile_email_entry.insert(0, email)
-        profile_password_entry.delete(0, END)
+        profile_password_entry.delete(0, ctk.END)
         profile_password_entry.insert(0, password)
 
     
@@ -316,14 +300,15 @@ def add_pet():
     color = register_color_entry.get()
     gender = register_gender_entry.get()
     size = register_size_entry.get()
-    description = register_desc_text.get("1.0", END).replace("\n", " ")
+    description = register_desc_text.get("1.0", ctk.END).replace("\n", " ")
 
     # Get the last pet ID from the CSV file
     df = pd.read_csv('data/cat_description.csv')
     last_pet_id = df['pet_id'].max()
 
+    # try:
     # Check if any of the required fields are empty and if the user has uploaded an image
-    if not(pet_name and breed and age and color and gender and size and description and os.path.exists("uploads")):
+    if not(pet_name and breed and age and color and gender and size and description and new_image_path):
         messagebox.showerror("Error", "Please fill in all required fields.")
     else:
         pet_data = pd.DataFrame({
@@ -332,8 +317,10 @@ def add_pet():
             "breed": [breed],
             "age": [age],
             "color": [color],
+            "gender": [gender],
             "size": [size],
-            "description": [description]
+            "description": [description],
+            "image_path": [new_image_path]
         })
 
         # Append the data to a CSV file
@@ -343,32 +330,28 @@ def add_pet():
 
 def upload_image():
     # Open a file dialog to select an image
-    image_path = filedialog.askopenfilename(title="Select an image", filetypes=[("Image Files", "*.png *.jpg *.jpeg")])
+    global new_image_path
+    image_path = ctk.filedialog.askopenfilename(title="Select an image", filetypes=[("Image Files", "*.png *.jpg *.jpeg")])
 
     # Check if an image was selected
     if image_path:
-        # Create a new folder called "images" if it doesn't exist
-        if not os.path.exists("pics"):
-            os.mkdir("pics")
+        # Create a new folder called "uploads" if it doesn't exist
+        if not os.path.exists("uploads"):
+            os.mkdir("uploads")
 
         # Get the filename of the selected image
         filename = os.path.basename(image_path)
 
-        # Create a new path to store the image in the "images" folder
-        new_image_path = os.path.join("pics", filename)
+        # Create a new path to store the image in the "uploads" folder
+        new_image_path = os.path.join("uploads", filename)
 
-        # Copy the image to the "images" folder
+        print(new_image_path)
+
+        # Copy the image to the "uploads" folder
         shutil.copy(image_path, new_image_path)
 
-        # get the index of the last row in the CSV file
-        df = pd.read_csv('data/cat_description.csv')
-        last_index = df.index.max()
-
-        # Update the image_path column of the last row with the new image path
-        df.loc[last_index, 'image_path'] = new_image_path
-
-        # Save the updated DataFrame to the CSV file
-        df.to_csv("data/cat_description.csv", index=False)
+        # Update the label to display the name of the selected image
+        register_image_display.configure(text=filename)
 
         messagebox.showinfo("Success", "Image uploaded successfully!")
 
@@ -386,35 +369,35 @@ root.geometry("620x400") # changed the size of the geometry for the homepage
 
 # ------------------------------------- Login Page -------------------------------------
 login_page = ctk.CTkFrame(root)
-login_page.pack(fill="both", expand=True, anchor=CENTER)
+login_page.pack(fill="both", expand=True, anchor=ctk.CENTER)
 
-# Create and place widgets using the place method with anchor "center"
+# Create and place widgets using the place method with anchor ctk.CENTER
 username_label = ctk.CTkLabel(login_page, text="Username:")
-username_label.place(relx=0.5, rely=0.25, anchor="center")
+username_label.place(relx=0.5, rely=0.25, anchor=ctk.CENTER)
 
 username_entry = ctk.CTkEntry(login_page)
-username_entry.place(relx=0.5, rely=0.35, anchor="center")
+username_entry.place(relx=0.5, rely=0.35, anchor=ctk.CENTER)
 
 password_label = ctk.CTkLabel(login_page, text="Password:")
-password_label.place(relx=0.5, rely=0.45, anchor="center")
+password_label.place(relx=0.5, rely=0.45, anchor=ctk.CENTER)
 
 password_entry = ctk.CTkEntry(login_page, show="*")  # Passwords are hidden with "*"
-password_entry.place(relx=0.5, rely=0.55, anchor="center")
+password_entry.place(relx=0.5, rely=0.55, anchor=ctk.CENTER)
 
 login_button = ctk.CTkButton(login_page, text="Login", command=check_login)
-login_button.place(relx=0.5, rely=0.70, anchor="center")
+login_button.place(relx=0.5, rely=0.70, anchor=ctk.CENTER)
 
 signup_button = ctk.CTkButton(login_page, text="Signup", command=signup_button_event)
-signup_button.place(relx=0.5, rely=0.95, anchor="center")
+signup_button.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
 
 result_label = ctk.CTkLabel(login_page, text="")
-result_label.place(relx=0.5, rely=0.80, anchor="center")
+result_label.place(relx=0.5, rely=0.80, anchor=ctk.CENTER)
 
 
 # ------------------------------------- Signup Page -------------------------------------
 signup_page = ctk.CTkFrame(root)
 
-# Create and place widgets using the place method with anchor "center"
+# Create and place widgets using the place method with anchor ctk.CENTER
 signup_name_label = ctk.CTkLabel(signup_page, text="Full Name:")
 signup_name_label.pack()
 
@@ -454,7 +437,7 @@ homepage = ctk.CTkFrame(root)
 # Create the navigation bar inside the homepage
 nav_bar = ctk.CTkFrame(homepage, fg_color="light grey", width=130, height=400)
 
-logo_label = ctk.CTkLabel(nav_bar, text=" Pusaa", image=logo_icon, compound="left")
+logo_label = ctk.CTkLabel(nav_bar, text=" Pusaa", image=logo_icon, compound=ctk.LEFT)
 logo_label.pack(padx=10, pady=10)
 
 
@@ -574,6 +557,9 @@ register_desc_text.grid(row=6, column=0, columnspan=3, sticky="ew")
 
 register_image_button = ctk.CTkButton(register_frame, text="Upload Image", command=upload_image)
 register_image_button.grid(row=7, column=0, padx=10, pady=10)
+
+register_image_display = ctk.CTkLabel(register_frame, text="No image selected")
+register_image_display.grid(row=7, column=2, padx=10, pady=10)
 
 register_submit_button = ctk.CTkButton(register_frame, text="Submit", command=add_pet)
 register_submit_button.grid(row=7, column=1, padx=10, pady=10)
