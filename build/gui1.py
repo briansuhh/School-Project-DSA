@@ -17,7 +17,7 @@ target_scale = 7  # The target scale factor
 step = 0.1  # The step size for scaling
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\USER\Downloads\Tkinter-Designer\build\assets\frame1")
+ASSETS_PATH = OUTPUT_PATH / Path(r"D:\Files\Programming\School Works\Second Year College\Python Project\build\assets\frame1")
 
 # def enlarge_image():
 #     global image_label, current_scale

@@ -22,7 +22,7 @@ window = Tk()
 window.geometry("620x400")
 window.configure(bg="#FFFFFF")
 
-pic_1 = Image.open("assets/frame1/image_1.png")
+pic_1 = Image.open("build/assets/frame1/image_1.png")
 image_1 = ImageTk.PhotoImage(image=pic_1)
 
 image_label = Label(window, image=image_1, bg="#F6F4C6")

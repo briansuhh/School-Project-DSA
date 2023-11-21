@@ -1,11 +1,12 @@
 import customtkinter as ctk
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageTk
 from tkinter import messagebox
 import smtplib
 import random
 import shutil
 import os
+from time import sleep
 
 # username = ""
 # password = ""
@@ -27,6 +28,11 @@ adopt_icon = ctk.CTkImage(Image.open("images/adopt.png"))
 donate_icon = ctk.CTkImage(Image.open("images/donate.png"))
 back_icon = ctk.CTkImage(Image.open("images/back.png"))
 profile_icon = ctk.CTkImage(Image.open("images/profile.png"))
+login_image_1 = ctk.CTkImage(Image.open("login_images/Group_1.png"), size=(326, 400))
+login_image_2 = ctk.CTkImage(Image.open("login_images/Group_2.png"), size=(326, 400))
+login_image_3 = ctk.CTkImage(Image.open("login_images/Group_3.png"), size=(326, 400))
+login_image_4 = ctk.CTkImage(Image.open("login_images/Group_4.png"), size=(326, 400))
+
 
 # ------------------------------------- Functions -------------------------------------
 def check_login():
@@ -371,27 +377,107 @@ root.geometry("620x400") # changed the size of the geometry for the homepage
 login_page = ctk.CTkFrame(root)
 login_page.pack(fill="both", expand=True, anchor=ctk.CENTER)
 
-# Create and place widgets using the place method with anchor ctk.CENTER
-username_label = ctk.CTkLabel(login_page, text="Username:")
-username_label.place(relx=0.5, rely=0.25, anchor=ctk.CENTER)
+# # Create and place widgets using the place method with anchor ctk.CENTER
+# username_label = ctk.CTkLabel(login_page, text="Username:")
+# username_label.place(relx=0.5, rely=0.25, anchor=ctk.CENTER)
 
-username_entry = ctk.CTkEntry(login_page)
-username_entry.place(relx=0.5, rely=0.35, anchor=ctk.CENTER)
+# username_entry = ctk.CTkEntry(login_page)
+# username_entry.place(relx=0.5, rely=0.35, anchor=ctk.CENTER)
 
-password_label = ctk.CTkLabel(login_page, text="Password:")
-password_label.place(relx=0.5, rely=0.45, anchor=ctk.CENTER)
+# password_label = ctk.CTkLabel(login_page, text="Password:")
+# password_label.place(relx=0.5, rely=0.45, anchor=ctk.CENTER)
 
-password_entry = ctk.CTkEntry(login_page, show="*")  # Passwords are hidden with "*"
-password_entry.place(relx=0.5, rely=0.55, anchor=ctk.CENTER)
+# password_entry = ctk.CTkEntry(login_page, show="*")  # Passwords are hidden with "*"
+# password_entry.place(relx=0.5, rely=0.55, anchor=ctk.CENTER)
 
-login_button = ctk.CTkButton(login_page, text="Login", command=check_login)
-login_button.place(relx=0.5, rely=0.70, anchor=ctk.CENTER)
+# login_button = ctk.CTkButton(login_page, text="Login", command=check_login)
+# login_button.place(relx=0.5, rely=0.70, anchor=ctk.CENTER)
 
-signup_button = ctk.CTkButton(login_page, text="Signup", command=signup_button_event)
-signup_button.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
+# signup_button = ctk.CTkButton(login_page, text="Signup", command=signup_button_event)
+# signup_button.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
 
-result_label = ctk.CTkLabel(login_page, text="")
-result_label.place(relx=0.5, rely=0.80, anchor=ctk.CENTER)
+# result_label = ctk.CTkLabel(login_page, text="")
+# result_label.place(relx=0.5, rely=0.80, anchor=ctk.CENTER)
+
+login_first_frame = ctk.CTkFrame(login_page, corner_radius=0, width=326, height=400)
+login_first_frame.pack(side=ctk.LEFT)
+
+# Folder containing image files
+image_folder = "login_images"
+
+# Create a canvas to display the animation
+canvas = ctk.CTkCanvas(login_first_frame, width=326, height=400)
+canvas.pack()
+
+# Get a list of image files in the folder
+image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+
+print(image_files)
+
+# Create a list to store ImageTk PhotoImage objects
+image_list = []
+
+# Load image files and convert them to PhotoImage
+for image_file in image_files:
+    image_path = os.path.join(image_folder, image_file)
+    image = Image.open(image_path)
+    photo = ImageTk.PhotoImage(image)
+    image_list.append(photo)
+
+frame_index = 0
+
+def update_frame():
+    global frame_index
+    if frame_index < len(image_list):
+        frame = image_list[frame_index]
+        
+        # Display the current frame
+        canvas.create_image(0, 0, anchor="nw", image=frame)
+        
+        # Increment the frame index
+        frame_index += 1
+
+        # Repeat this function after a delay for the animation effect
+        canvas.after(1000, update_frame)
+    else:
+        # All images have been displayed, so stop the loop
+        frame_index = 0
+
+# Start the animation
+update_frame()
+
+
+# login_image_label = ctk.CTkLabel(login_first_frame, text="", image=login_image_1)
+# login_image_label.place(relx=0.5, rely=0.5, anchor=ctk.CENTER) 
+
+# login_image_label = ctk.CTkLabel(login_first_frame, text="", image=login_image_2)
+# login_image_label.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+
+
+
+login_second_frame = ctk.CTkFrame(login_page, corner_radius=0, fg_color="transparent", width=294, height=400)
+login_second_frame.pack(side=ctk.LEFT, fill="both", expand=True)
+
+login_label = ctk.CTkLabel(login_second_frame, text="Login", font=("Arial", 18))
+login_label.grid(row=0, column=0, sticky="w")
+
+username_label = ctk.CTkLabel(login_second_frame, text="Username:")
+username_label.grid(row=1, column=0, sticky="w")
+
+username_entry = ctk.CTkEntry(login_second_frame)
+username_entry.grid(row=2, column=0, sticky="w")
+
+password_label = ctk.CTkLabel(login_second_frame, text="Password:")
+password_label.grid(row=3, column=0, sticky="w")
+
+password_entry = ctk.CTkEntry(login_second_frame, show="*")  # Passwords are hidden with "*"
+password_entry.grid(row=4, column=0, sticky="w")
+
+
+
+
+
+
 
 
 # ------------------------------------- Signup Page -------------------------------------

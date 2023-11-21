@@ -23,8 +23,8 @@ def enlarge_image():
 root = tk.Tk()
 root.title("Image Enlarger App")
 
-image_1 = Image.open("assets/frame1/image_1.png")
-image_2 = Image.open("assets/frame1/image_2.png")
+image_1 = Image.open("build/assets/frame1/image_1.png")
+image_2 = Image.open("build/assets/frame1/image_2.png")
 
 image_1 = ImageTk.PhotoImage(image=image_1)
 image_2 = ImageTk.PhotoImage(image=image_2)
